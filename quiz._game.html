@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz Game with Falling Droplets</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    #nextButton {
+      position: absolute;
+      top: 60%;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: none;
+      font-size: 16px;
+    }
+    #resultScreen {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border: 2px solid #333;
+      max-width: 1200px;
+      max-height: 80vh;
+      overflow-y: auto;
+      text-align: left;
+      display: none;
+      font-size: 16px;
+      line-height: 1.5em;
+    }
+    #resultScreen p {
+      margin: 10px 0;
+      font-weight: bold;
+    }
+    #resultScreen div {
+      margin: 5px 0;
+    }
+    #resultChart {
+      max-width: 800px;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+  <button id="nextButton" onclick="nextQuestion()">다음</button>
+  <div id="resultScreen"></div>
+  <script>
+    let questions = [
+      {"question": "뼈와 뼈를 연결하는 조직은?", "answer": "인대", "scrambled": ["뼈", "힘줄", "근육"]},
+      {"question": "인대가 늘어나거나 일부 찢어진 것을\n 무엇이라고 하나요 ?", "answer": "염좌", "scrambled": ["골절", "탈구","타박상"]},
+      {"question": "뼈가 부러진 것을 무엇이라고 하나요?", "answer": "골절", "scrambled": ["염좌", "탈구","치통"]},
+      {"question": "뼈가 원래의 위치에서\n벗어난 것을 무엇이라고 하나요?", "answer": "탈구", "scrambled": ["붕대", "골절","염좌"]},
+      {"question": "염좌나 골절이 의심될 때 하는 응급처치법은?", "answer": "RICE", "scrambled": ["Bus", "CPR","Tree"]},
+      {"question": "RICE에서 R의 의미는?", "answer": "휴식", "scrambled": ["얼음", "압박"," 올려 주기"]},
+      {"question": "RICE에서 I의 의미는?", "answer": "얼음찜질", "scrambled": ["휴식", "올려 주기"]},
+      {"question": "RICE에서 C의 의미는?", "answer": "압박", "scrambled": ["골절", "염좌"]},
+      {"question": "RICE에서 E의 의미는?", "answer": "올려 주기", "scrambled": ["붕대", "휴식"," 얼음찜질"]},
+      {"question": "뼈를 영어로?", "answer": "Bone", "scrambled": ["water", "gas"]}
+    ];
+
+    let currentQuestion = 0;
+    let correctCount = 0;
+    let incorrectCount = 0;
+    let droplets = [];
+    let gameState = 'playing';
+    let answers = [];
+
+    function setup() {
+      let canvasWidth = min(windowWidth - 20, 1000);
+      let canvasHeight = canvasWidth * 0.75;
+      createCanvas(canvasWidth, canvasHeight);
+      textAlign(CENTER, CENTER);
+      textSize(20);
+      startQuestion();
+    }
+
+    function startQuestion() {
+      droplets = [];
+      gameState = 'playing';
+      document.getElementById('nextButton').style.display = 'none';
+      let q = questions[currentQuestion];
+      let allAnswers = [q.answer, ...q.scrambled];
+      allAnswers.sort(() => Math.random() - 0.5);
+      for (let i = 0; i < allAnswers.length; i++) {
+        droplets.push({
+          x: width / (allAnswers.length + 1) * (i + 1),
+          y: random(50, height - 50),
+          text: allAnswers[i],
+          speed: random(1, 3),
+          direction: random() > 0.5 ? 1 : -1
+        });
+      }
+    }
+
+    function draw() {
+      background(220);
+      if (gameState === 'playing') {
+        fill(0);
+        textSize(40);
+        textAlign(CENTER, TOP);
+        text(questions[currentQuestion].question, width / 2, 20);
+        for (let drop of droplets) {
+          drawDroplet(drop.x, drop.y, drop.text);
+          drop.y += drop.speed * drop.direction;
+          if (drop.y > height - 50 || drop.y < 120) {
+            drop.direction *= -1;
+          }
+        }
+      } else if (gameState === 'correct') {
+        textSize(40);
+        fill(0, 255, 0);
+        textAlign(CENTER, CENTER);
+        text('정답입니다!', width / 2, height / 2 + 50);
+      } else if (gameState === 'incorrect') {
+        textSize(40);
+        fill(255, 0, 0);
+        textAlign(CENTER, CENTER);
+        text('오답입니다!', width / 2, height / 2 + 50);
+        document.getElementById('nextButton').style.display = 'block';
+      }
+    }
+
+    function drawDroplet(x, y, textContent) {
+      fill(100, 100, 255, 200);
+      ellipse(x, y, 100, 100);
+      fill(255);
+      textSize(16);
+      textAlign(CENTER, CENTER);
+      text(textContent, x, y);
+    }
+
+    function mousePressed() {
+      if (gameState === 'playing') {
+        for (let drop of droplets) {
+          let d = dist(mouseX, mouseY, drop.x, drop.y);
+          if (d < 50) {
+            let isCorrect = drop.text === questions[currentQuestion].answer;
+            answers.push({
+              question: questions[currentQuestion].question,
+              selected: drop.text,
+              correctAnswer: questions[currentQuestion].answer,
+              wasCorrect: isCorrect
+            });
+            if (isCorrect) {
+              gameState = 'correct';
+              correctCount++;
+              setTimeout(nextQuestion, 1000);
+            } else {
+              gameState = 'incorrect';
+              incorrectCount++;
+              document.getElementById('nextButton').style.display = 'block';
+            }
+            break;
+          }
+        }
+      }
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        startQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      noLoop();
+      let resultScreen = document.getElementById('resultScreen');
+      let resultText = `<p>맞춘 문제: ${correctCount}</p><p>틀린 문제: ${incorrectCount}</p>`;
+      resultText += `<canvas id="resultChart" width="400" height="300"></canvas>`;
+      resultText += `<div>문제와 답변:</div>`;
+      answers.forEach((ans, index) => {
+        resultText += `<div>${index + 1}. ${ans.question.replace('\n', '<br>')}</div>`;
+        resultText += `<div>선택한 답: ${ans.selected}</div>`;
+        resultText += `<div>정답: ${ans.correctAnswer}</div>`;
+        resultText += `<div>결과: ${ans.wasCorrect ? '맞음' : '틀림'}</div><br>`;
+      });
+      resultText += `<button onclick="restartGame()">다시 시작</button>`;
+      resultScreen.innerHTML = resultText;
+      resultScreen.style.display = 'block';
+
+      let ctx = document.getElementById('resultChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['맞춘 문제', '틀린 문제'],
+          datasets: [{
+            label: '퀴즈 결과',
+            data: [correctCount, incorrectCount],
+            backgroundColor: ['#4CAF50', '#FF5252'],
+            borderColor: ['#388E3C', '#D32F2F'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: '문제 수',
+                font: { size: 16 }
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: '결과',
+                font: { size: 16 }
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: '퀴즈 결과 요약',
+              font: { size: 18 }
+            }
+          }
+        }
+      });
+    }
+
+    function restartGame() {
+      currentQuestion = 0;
+      correctCount = 0;
+      incorrectCount = 0;
+      answers = [];
+      gameState = 'playing';
+      document.getElementById('resultScreen').style.display = 'none';
+      loop();
+      startQuestion();
+    }
+  </script>
+</body>
+</html>
