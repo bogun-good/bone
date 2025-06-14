@@ -2,7 +2,6 @@
 
 
 
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -22,16 +21,14 @@
     }
     #nextButton {
       position: absolute;
-      top: 60%;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 10px;
+      right: 10px;
       padding: 10px 20px;
       background-color: #4CAF50;
       color: white;
       border: none;
       cursor: pointer;
       display: none;
-      font-size: 16px;
     }
     #resultScreen {
       position: absolute;
@@ -41,7 +38,7 @@
       background-color: rgba(255, 255, 255, 0.95);
       padding: 20px;
       border: 2px solid #333;
-      max-width: 1200px;
+      max-width: 600px;
       max-height: 80vh;
       overflow-y: auto;
       text-align: left;
@@ -57,7 +54,7 @@
       margin: 5px 0;
     }
     #resultChart {
-      max-width: 800px;
+      max-width: 400px;
       margin: 20px auto;
     }
   </style>
@@ -67,17 +64,17 @@
   <div id="resultScreen"></div>
   <script>
     let questions = [
-      {"question": "뼈와 뼈를 연결하는 조직은?", "answer": "인대", "scrambled": ["뼈", "힘줄", "근육"]},
-      {"question": "인대가 늘어나거나 일부 찢어진 것을\n 무엇이라고 하나요 ?", "answer": "염좌", "scrambled": ["골절", "탈구","타박상"]},
-      {"question": "뼈가 부러진 것을 무엇이라고 하나요?", "answer": "골절", "scrambled": ["염좌", "탈구","치통"]},
-      {"question": "뼈가 원래의 위치에서\n벗어난 것을 무엇이라고 하나요?", "answer": "탈구", "scrambled": ["붕대", "골절","염좌"]},
-      {"question": "염좌나 골절이 의심될 때 하는 응급처치법은?", "answer": "RICE", "scrambled": ["Bus", "CPR","Tree"]},
-      {"question": "RICE에서 R의 의미는?", "answer": "휴식", "scrambled": ["얼음", "압박"," 올려 주기"]},
-      {"question": "RICE에서 I의 의미는?", "answer": "얼음찜질", "scrambled": ["휴식", "올려 주기"]},
+      {"question": "뼈와 뼈를 연결하는 조직은?", "answer": "인대", "scrambled": ["뼈", "힘줄"]},
+      {"question": "인대가 늘어난 것을 무엇이라고 하나요 ?", "answer": "염좌", "scrambled": ["골절","타박상"]},
+      {"question": "뼈가 부러진 것을 무엇이라고 하나요?", "answer": "골절", "scrambled": ["염좌", "타박상"]},
+      {"question": "뼈가 원래의 위치에서\n벗어난 것을 무엇이라고 하나요?", "answer": "탈구", "scrambled": ["타박상", "염좌"]},
+      {"question": "염좌나 골절이 의심될 때 하는 응급처치법은?", "answer": "RICE", "scrambled": ["Bus",  "CPR"]},
+      {"question": "RICE에서 R의 의미는?", "answer": "휴식", "scrambled": ["얼음", "올려 주기"]},
+      {"question": "RICE에서 I의 의미는?", "answer": "얼음찜질", "scrambled": ["올려 주기","압박"]},
       {"question": "RICE에서 C의 의미는?", "answer": "압박", "scrambled": ["골절", "염좌"]},
-      {"question": "RICE에서 E의 의미는?", "answer": "올려 주기", "scrambled": ["붕대", "휴식"," 얼음찜질"]},
-      {"question": "골절 또는 골절이 의심되는 경우\n  부목으로 사용할 수 없는 것은?", "answer": "유리막대", "scrambled": ["나뭇가지", "우산", "책" ]}
-    ];
+      {"question": "RICE에서 E의 의미는?", "answer": "올려 주기", "scrambled": ["붕대","얼음찜질"]},
+      {"question": "부목으로 부적합한 것은?", "answer": "유리막대", "scrambled": ["우산", "나무막대"]},
+     ];
 
     let currentQuestion = 0;
     let correctCount = 0;
@@ -87,7 +84,7 @@
     let answers = [];
 
     function setup() {
-      let canvasWidth = min(windowWidth - 20, 1000);
+      let canvasWidth = min(windowWidth - 20, 800);
       let canvasHeight = canvasWidth * 0.75;
       createCanvas(canvasWidth, canvasHeight);
       textAlign(CENTER, CENTER);
@@ -104,8 +101,8 @@
       allAnswers.sort(() => Math.random() - 0.5);
       for (let i = 0; i < allAnswers.length; i++) {
         droplets.push({
-          x: width / (allAnswers.length + 1) * (i + 1),
-          y: random(50, height - 50),
+          x: width / 4 + i * (width / 4),
+          y: random(100, height - 100),
           text: allAnswers[i],
           speed: random(1, 3),
           direction: random() > 0.5 ? 1 : -1
@@ -131,13 +128,12 @@
         textSize(40);
         fill(0, 255, 0);
         textAlign(CENTER, CENTER);
-        text('정답입니다!', width / 2, height / 2 + 50);
+        text('정답입니다!', width / 2, height / 2);
       } else if (gameState === 'incorrect') {
         textSize(40);
         fill(255, 0, 0);
         textAlign(CENTER, CENTER);
-        text('오답입니다!', width / 2, height / 2 + 50);
-        document.getElementById('nextButton').style.display = 'block';
+        text('오답입니다!', width / 2, height / 2);
       }
     }
 
@@ -235,7 +231,7 @@
               }
             }
           },
-          plugins: {
+  plugins: {
             legend: { display: false },
             title: {
               display: true,
