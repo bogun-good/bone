@@ -7,6 +7,14 @@
 
 
 
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -70,7 +78,7 @@
   <script>
     let questions = [
       {"question": "뼈와 뼈를 연결하는 조직은?", "answer": "인대", "scrambled": ["뼈", "힘줄"]},
-      {"question": "인대가 늘어나거나 주변조직 일부가 찢어진 것은 ?", "answer": "염좌", "scrambled": ["골절","타박상"]},
+      {"question": "인대가 늘어나거나 주변조직 일부가 찢어진 것은?", "answer": "염좌", "scrambled": ["골절", "타박상"]},
       {"question": "뼈가 부러진 것을 무엇이라고 하나요?", "answer": "골절", "scrambled": ["염좌", "타박상"]},
       {"question": "뼈가 원래의 위치에서\n벗어난 것을 무엇이라고 하나요?", "answer": "탈구", "scrambled": ["타박상", "염좌"]},
       {"question": "염좌나 골절이 의심될 때 하는 응급처치법은?", "answer": "RICE", "scrambled": ["Bus",  "CPR"]},
